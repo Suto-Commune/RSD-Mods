@@ -2,11 +2,11 @@ import sys
 import upd2
 from tkinter import filedialog
 import ttkbootstrap as ttk
-import  os
-
-
+import os
 
 os.system("chcp 65001")
+
+
 class myStdout():  # 重定向类
     def __init__(self):
         # 将其备份
@@ -33,6 +33,7 @@ def btn_func():
         select_path.set("./minecraft")
     upd2.upd(select_path.get())
 
+
 def select_folder():
     # 文件夹选择
     selected_folder = filedialog.askdirectory()  # 使用askdirectory函数选择文件夹
@@ -44,19 +45,19 @@ mystd = myStdout()  # 实例化重定向类
 root.title("Redstone Installer - 2.0.0 Beta whit GUI , By LolingNatsumi")
 
 t = ttk.Text(root)
-#.grid(column=0,row=0,rowspan=10)  # 输出控制台日志类
+# .grid(column=0,row=0,rowspan=10)  # 输出控制台日志类
 # t.pack()  # 放置
-t.grid(column=0,row=0,rowspan=10)
+t.grid(column=0, row=0, rowspan=10)
 
-b = ttk.Button(root, text='start', command=btn_func,width=20)
-b.grid(column=2,row=4,rowspan=3)  # 按钮开始更新操作
-#选择文件
+b = ttk.Button(root, text='start', command=btn_func, width=20)
+b.grid(column=2, row=4, rowspan=3)  # 按钮开始更新操作
+# 选择文件
 
 select_path = ttk.StringVar()
 select_path.set("./minecraft")
 ttk.Label(root, text=".minecraft文件夹路径：").grid(column=1, row=1, rowspan=3)
 ttk.Entry(root, textvariable=select_path, width=50).grid(column=2, row=1, rowspan=3)
-ttk.Button(root, text="...", command=select_folder).grid(column=3, row=1,rowspan=3)
+ttk.Button(root, text="...", command=select_folder).grid(column=3, row=1, rowspan=3)
 
 root.mainloop()  # 显示窗体
 mystd.restoreStd()  # 恢复标准输出
