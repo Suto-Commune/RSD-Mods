@@ -2,27 +2,33 @@ import os
 import sys
 import hashlib
 import requests
-from tqdm import tqdm
+import time
+from contextlib import closing
 
-
-def upd(filepath: str):
-    for i in range(0, 25, 1):
-        print("")
-    program_version = str("1.0.1")
+def upd(save_path :str):
+    os.system("chcp 65001")
+    program_version = str("2.0.0")
     os.system("title RedStone Update Version: " + program_version)
+    save_path=save_path+"/mods/"
+    github_api = "https://api.github.com/repos/miangou/republicofredstone/releases/latest"
+    down_api = "https://redstone-download.netlify.app/"
 
     # 创建目录避免报错
-    if not os.path.exists(filepath+"/mods"):
-        os.mkdir(filepath+"/mods")
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
 
     # 判断是否联网
-    def lianwangpanduan():
+    def connect_internet():
         try:
-            requests.get("http://www.baidu.com", timeout=2)
+            requests.get("http://api.github.com/", timeout=2)
         except:
             return False
         return True
 
+
+    '''
+    from tqdm import tqdm
     # 下载条
     def download(url: str, fname: str):
         # 用流stream的方式获取url的数据
@@ -41,10 +47,32 @@ def upd(filepath: str):
             for data in resp.iter_content(chunk_size=1024):
                 size = file.write(data)
                 bar.update(size)
-                print("")
+    '''
+
+
+    def download(file_url, file_path):
+        start_time = time.time()  # 文件开始下载时的时间
+        with closing(requests.get(file_url, stream=True)) as response:
+            chunk_size = 1024  # 单次请求最大值
+            # content_size = int(response.headers['content-length'])  # 内容体总大小
+            # content_size = int(response.headers.get('content-length'),0)
+            # print(content_size)
+            data_count = 0
+            with open(file_path, "wb") as file:
+                for data in response.iter_content(chunk_size=chunk_size):
+                    file.write(data)
+                    data_count = data_count + len(data)
+                    # now_jd = (data_count / content_size) * 100
+                    speed = data_count / 1024 / (time.time() - start_time)
+                    print("[%s] - %dKB [%dKB/s]"
+                          % (file_path,data_count/1024,speed))
+                    # print("\r %s 文件下载进度：%d%%(%d/%d) [%dKB/s]"
+                    #       % (now_jd, data_count, content_size, speed, file_path), end=" ")
+        print("")
+
 
     # 联网判断
-    if not lianwangpanduan():
+    if not connect_internet():
         print("未网络.请联网后使用")
         os.system("pause")
         sys.exit()
@@ -52,7 +80,7 @@ def upd(filepath: str):
         print("已链接网络")
 
     # 获取json
-    latest_ = requests.get("https://api.github.com/repos/miangou/republicofredstone/releases/latest")
+    latest_ = requests.get(github_api)
     latest_json = latest_.json()
     # 写入本地
     # file_latest_write.close()
@@ -74,7 +102,7 @@ def upd(filepath: str):
     latest_file_download_link = [0 for i in range(latest_file_num)]
     latest_file_will_do = [0 for i in range(latest_file_num)]
 
-    md5 = requests.get("https://redstone-download.netlify.app/md5.json")
+    md5 = requests.get(down_api + "md5.json")
     md5_json = md5.json()
 
     for i in range(0, latest_file_num):
@@ -82,8 +110,8 @@ def upd(filepath: str):
         latest_file_download_link[i] = latest_json["assets"][i]["browser_download_url"]
         # print(latest_file_name[i])
         # print(latest_file_download_link[i])
-        if os.path.exists(filepath+'/mods/' + str(latest_file_name[i])):
-            path = filepath+'/mods/' + str(latest_file_name[i])
+        if os.path.exists(save_path + str(latest_file_name[i])):
+            path = save_path + str(latest_file_name[i])
             with open(path, 'rb') as f:
                 md5_in = hashlib.md5(f.read()).hexdigest()
                 if md5_in == md5_json[str(latest_file_name[i])]:
@@ -147,13 +175,13 @@ def upd(filepath: str):
                 print("发现Mod依赖丢失: " + str(latest_file_name[i]) + " ,准备下载...")
             elif latest_file_will_do[i] == 3:
                 print(str(latest_file_name[i]) + " MD5校验错误,正在重新下载中...")
-            download("https://redstone-download.netlify.app/" + str(latest_file_name[i]),
-                     filepath+"/mods/" + str(latest_file_name[i]))
+            download(down_api + str(latest_file_name[i]),
+                     save_path + str(latest_file_name[i]))
             zhuangtai += 1
-        elif latest_file_will_do[i] == 2 and os.path.exists(filepath+"/mods/" + str(latest_file_name[i])):
+        elif latest_file_will_do[i] == 2 and os.path.exists(save_path + str(latest_file_name[i])):
             print("发现冗余Mod(s): " + str(latest_file_name[i]) + " ,即将删除")
-            # if os.path.exists(filepath+"/mods/"+latest_file_name[i]):
-            os.remove(filepath+"/mods/" + str(latest_file_name[i]))
+            # if os.path.exists(save_path+latest_file_name[i]):
+            os.remove(save_path + str(latest_file_name[i]))
             zhuangtai += 1
     if zhuangtai == 0:
         print("恭喜!您的Mod(s)依赖均为最新!")
