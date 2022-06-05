@@ -42,7 +42,7 @@ def select_folder():
 
 root = ttk.Window()
 mystd = myStdout()  # 实例化重定向类
-root.title("Redstone Installer - 2.0.0 Beta whit GUI , By LolingNatsumi")
+root.title("Redstone Installer - 2.0.1 Beta whit GUI , By LolingNatsumi")
 
 t = ttk.Text(root)
 # .grid(column=0,row=0,rowspan=10)  # 输出控制台日志类

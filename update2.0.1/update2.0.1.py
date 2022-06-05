@@ -6,7 +6,7 @@ import time
 from contextlib import closing
 
 os.system("chcp 65001")
-program_version = str("2.0.0")
+program_version = str("2.0.1")
 os.system("title RedStone Update Version: " + program_version)
 
 down_api_list = ['https://republicofredstone.pages.dev/', 'https://republicofredstone-miangou.vercel.app/',
@@ -88,7 +88,7 @@ for i in range(0, len(down_api_list)):
     if connect_internet(down_api_list[i]):
         down_api_can_use.append(i)
 
-#智能选择api
+# 智能选择api
 down_api = down_api_list[min(down_api_can_use)]
 
 # 获取json
@@ -187,9 +187,16 @@ for i in range(0, len(latest_file_will_do)):
             print("发现Mod依赖丢失: " + str(latest_file_name[i]) + " ,准备下载...")
         elif latest_file_will_do[i] == 3:
             print(str(latest_file_name[i]) + " MD5校验错误,正在重新下载中...")
-        download(down_api + str(latest_file_name[i]),
-                 save_path + str(latest_file_name[i]))
-        zhuangtai += 1
+            # 傻逼vercel 的文件下载逻辑，真tm傻逼
+        if "vercel" in str(down_api):
+            download(down_api + str(latest_file_name[i]).replace('+', '%2B'),
+                     save_path + str(latest_file_name[i]))
+            zhuangtai += 1
+        else:
+            download(down_api + str(latest_file_name[i]),
+                     save_path + str(latest_file_name[i]))
+            zhuangtai += 1
+
     elif latest_file_will_do[i] == 2 and os.path.exists(save_path + str(latest_file_name[i])):
         print("发现冗余Mod(s): " + str(latest_file_name[i]) + " ,即将删除")
         # if os.path.exists(save_path+latest_file_name[i]):

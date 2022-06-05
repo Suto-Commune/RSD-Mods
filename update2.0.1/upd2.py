@@ -5,13 +5,15 @@ import requests
 import time
 from contextlib import closing
 def upd(path:str):
-    program_version = str("2.0.1")
+    os.system("chcp 65001")
+    program_version = str("2.0.0")
     os.system("title RedStone Update Version: " + program_version)
 
     down_api_list = ['https://republicofredstone.pages.dev/', 'https://republicofredstone-miangou.vercel.app/',
                      'https://redstone-download.netlify.app/', 'https://miangou.github.io/republicofredstone/']
     down_api_can_use = []
     github_api = "https://api.github.com/repos/miangou/republicofredstone/releases/latest"
+    # down_api = "https://redstone-download.netlify.app/"
     save_path = path
 
     # 创建目录避免报错
@@ -86,7 +88,7 @@ def upd(path:str):
         if connect_internet(down_api_list[i]):
             down_api_can_use.append(i)
 
-    #智能选择api
+    # 智能选择api
     down_api = down_api_list[min(down_api_can_use)]
 
     # 获取json
@@ -185,9 +187,16 @@ def upd(path:str):
                 print("发现Mod依赖丢失: " + str(latest_file_name[i]) + " ,准备下载...")
             elif latest_file_will_do[i] == 3:
                 print(str(latest_file_name[i]) + " MD5校验错误,正在重新下载中...")
-            download(down_api + str(latest_file_name[i]),
-                     save_path + str(latest_file_name[i]))
-            zhuangtai += 1
+                # 傻逼vercel 的文件下载逻辑，真tm傻逼
+            if "vercel" in str(down_api):
+                download(down_api + str(latest_file_name[i]).replace('+', '%2B'),
+                         save_path + str(latest_file_name[i]))
+                zhuangtai += 1
+            else:
+                download(down_api + str(latest_file_name[i]),
+                         save_path + str(latest_file_name[i]))
+                zhuangtai += 1
+
         elif latest_file_will_do[i] == 2 and os.path.exists(save_path + str(latest_file_name[i])):
             print("发现冗余Mod(s): " + str(latest_file_name[i]) + " ,即将删除")
             # if os.path.exists(save_path+latest_file_name[i]):
@@ -196,3 +205,4 @@ def upd(path:str):
     if zhuangtai == 0:
         print("恭喜!您的Mod(s)依赖均为最新!")
     print("----------\n操作完成\n----------")
+    os.system("pause")
