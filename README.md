@@ -11,3 +11,7 @@ https://republicofredstone.pages.dev/*
 https://republicofredstone.vercel.app/*
 
 https://miangou.github.io/republicofredstone/*
+
+# RSD-installer 已经改变仓库
+
+https://github.com/miangou/rsd-installer
